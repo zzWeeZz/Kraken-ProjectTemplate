@@ -24,9 +24,11 @@ echo sharpmake building solution...
 
 call %SHARPMAKE_EXECUTABLE% /sources('ProjectDefinitions/main.sharpmake.cs')
 
+@COLOR 2F
 pause
-
+exit
 
 :error
 @COLOR 4F
 pause
+exit

@@ -4,36 +4,40 @@ using System.Linq;
 using System.Text;
 using Sharpmake;
 
-namespace Template
+[module: Sharpmake.Include("*.sharpmake.cs")]
+
+namespace Kraken
 {
     [Sharpmake.Generate]
-    public class EntryPoint : Project
+    public class SharpmakeSource : KrakenCSharpProject
     {
-        public EntryPoint()
+        public SharpmakeSource()
         {
-            RootPath = @"[project.SharpmakeCsPath]\..\[project.Name]";
-            SourceRootPath = @"[project.RootPath]\src";
-            AddTargets(new Target(
-                      // we want a target that builds for both 32 and 64-bit Windows.
-                      Platform.win64,
+            SourceRootPath = @"[project.RootPath]/../Vendor/Sharpmake";
+        }
+    }
 
-                      // we only care about Visual Studio 2015. (Edit as needed.)
-                      DevEnv.vs2022,
-
-                      // of course, we want a debug and a release configuration.
-                      Optimization.Debug | Optimization.Release));
+    [Sharpmake.Generate]
+    public class ProjectDefinitions : KrakenCSharpProject
+    {
+        public ProjectDefinitions()
+        {
+            SourceRootPath = @"[project.RootPath]";
         }
 
         [Configure()]
-        public virtual void ConfigureAll(Configuration conf, Target target)
+        public override void ConfigureAll(Configuration conf, Target target)
         {
-            conf.ProjectPath = @"[project.RootPath]";
+            base.ConfigureAll(conf, target);
 
-            if (target.Optimization == Optimization.Debug)
-                conf.Options.Add(Options.Vc.Compiler.RuntimeLibrary.MultiThreadedDebugDLL);
-            else
-                conf.Options.Add(Options.Vc.Compiler.RuntimeLibrary.MultiThreadedDLL);
+            conf.AddPrivateDependency<SharpmakeSource>(target);
         }
+    }
+
+    [Sharpmake.Generate]
+    public class EntryPoint : KrakenCppProject
+    {
+        public EntryPoint(){}
     }
 
     [Sharpmake.Generate]
@@ -51,7 +55,11 @@ namespace Template
         {
             conf.SolutionFileName = "[solution.Name]";
             conf.SolutionPath = WorkingDirectory;
+
             conf.AddProject<EntryPoint>(target);
+
+            conf.AddProject<ProjectDefinitions>(target);
+            conf.AddProject<SharpmakeSource>(target);
         }
 
         [Sharpmake.Main]
