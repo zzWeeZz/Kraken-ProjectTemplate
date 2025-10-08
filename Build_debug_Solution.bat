@@ -22,7 +22,7 @@ if not exist %SHARPMAKE_EXECUTABLE% echo Cannot find sharpmake executable in %~d
 
 echo sharpmake building solution...
 
-call %SHARPMAKE_EXECUTABLE% /sources('ProjectDefinitions/SharpmakeEntrypoint/main.sharpmake.cs')
+call %SHARPMAKE_EXECUTABLE% /sources('ProjectDefinitions/SharpmakeEntrypoint/main.sharpmake.cs') /generateDebugSolution
 
 pause
 Exit
