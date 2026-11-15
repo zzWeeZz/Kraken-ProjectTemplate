@@ -1,32 +1,9 @@
 @echo off
-
-:: Clear previous run status
+:: Generates Engine.sln. Extra arguments go to Sharpmake, e.g. /fetchupdate.
 COLOR
-
-set SHARPMAKE_EXECUTABLE=%~dp0Vendor\Sharpmake\Sharpmake.Application\bin\Release\net6.0\Sharpmake.Application.exe
-
-
-pushd Vendor
-pushd Sharpmake
-:: First compile sharpmake to insure we are trying to deploy using an executable corresponding to the code.
-if not exist %SHARPMAKE_EXECUTABLE% dotnet build Sharpmake.sln /p:Configuration=Release /p:Platform="Any CPU"
-if %errorlevel% NEQ 0 goto error
-popd
-popd
-
-echo sharpmake executable is built, fetching executable...
-
-if not exist %SHARPMAKE_EXECUTABLE% echo Cannot find sharpmake executable in %~dp0%~dp0Vendor\Sharpmake\Sharpmake.Application\bin\Release\net6.0 & pause & goto error
-
-
-
-echo sharpmake building solution...
-
-call %SHARPMAKE_EXECUTABLE% /sources('ProjectDefinitions/SharpmakeEntrypoint/main.sharpmake.cs')
-
-pause
-Exit
-
-:error
-@COLOR 4F
+call "%~dp0Scripts\GenerateSolution.bat" %*
+if errorlevel 1 (
+    COLOR 4F
+    echo Generating the solution failed.
+)
 pause

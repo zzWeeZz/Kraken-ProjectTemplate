@@ -1,7 +1,16 @@
 #include "Core.h"
-#include <iostream>
 
-void Core::Core::PrintMessage()
+#include <spdlog/spdlog.h>
+
+namespace Core
 {
-	std::cout << "Hello from Core!" << std::endl;
+	Core::Core()
+	{
+		spdlog::set_pattern("[%T] [%^%l%$] %v");
+	}
+
+	void Core::PrintMessage()
+	{
+		spdlog::info("Hello from Core!");
+	}
 }
