@@ -1,22 +1,27 @@
 using Sharpmake;
-using System;
 
-[Sharpmake.Generate]
-public class EngineSolution : Sharpmake.Solution
+namespace Kraken
 {
-    public String WorkingDirectory = @"[solution.SharpmakeCsPath]\..";
-    public EngineSolution()
+    [Sharpmake.Generate]
+    public class EngineSolution : Sharpmake.Solution
     {
-        Name = "Engine";
-        AddTargets(new Target(Platform.win64, DevEnv.vs2022, Optimization.Debug | Optimization.Release));
-    }
+        public EngineSolution()
+        {
+            Name = "Engine";
+            IsFileNameToLower = false;
+            AddTargets(Settings.Targets);
+        }
 
-    [Configure()]
-    public void ConfigureAll(Configuration conf, Target target)
-    {
-        conf.SolutionFileName = "[solution.Name]";
-        conf.SolutionPath = WorkingDirectory;
-        conf.AddProject<EntryPoint>(target);
-        conf.AddProject<Core>(target);
+        [Configure]
+        public void ConfigureAll(Configuration conf, Target target)
+        {
+            conf.SolutionFileName = "[solution.Name]";
+            // The repository root, next to the Build_*.bat scripts.
+            conf.SolutionPath = Settings.RootPath;
+
+            // The first project added is the startup project.
+            conf.AddProject<EntryPoint>(target);
+            conf.AddProject<Core>(target);
+        }
     }
 }

@@ -1,11 +1,13 @@
+#pragma once
+
 namespace Core
 {
 	class Core
 	{
 	public:
-		Core() = default;
+		Core();
 		~Core() = default;
 
 		void PrintMessage();
 	};
-};
+}

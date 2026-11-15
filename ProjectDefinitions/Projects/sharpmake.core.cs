@@ -1,34 +1,22 @@
 using Sharpmake;
 
-[Sharpmake.Generate]
-public class Core : Project
+namespace Kraken
 {
-    public Core()
+    [Sharpmake.Generate]
+    public class Core : KrakenProject
     {
-        RootPath = @"[project.SharpmakeCsPath]\..\..\[project.Name]";
-        SourceRootPath = @"[project.RootPath]\src";
-        AddTargets(new Target(
-                  // we want a target that builds for both 32 and 64-bit Windows.
-                  Platform.win64,
+        public override void ConfigureAll(Configuration conf, Target target)
+        {
+            base.ConfigureAll(conf, target);
+            conf.Output = Configuration.OutputType.Lib;
 
-                  // we only care about Visual Studio 2015. (Edit as needed.)
-                  DevEnv.vs2022,
+            // Private: only Core's .cpp files include spdlog. Make it public if a Core header
+            // includes spdlog, so the projects using Core get its include paths too.
+            conf.AddPrivateDependency<Spdlog>(target);
 
-                  // of course, we want a debug and a release configuration.
-                  Optimization.Debug | Optimization.Release));
-    }
-
-    [Configure()]
-    public virtual void ConfigureAll(Configuration conf, Target target)
-    {
-        conf.ProjectPath = @"[project.RootPath]";
-        conf.IncludePaths.Add(@"[project.SourceRootPath]");
-
-        if (target.Optimization == Optimization.Debug)
-            conf.Options.Add(Options.Vc.Compiler.RuntimeLibrary.MultiThreadedDebugDLL);
-        else
-            conf.Options.Add(Options.Vc.Compiler.RuntimeLibrary.MultiThreadedDLL);
-
-        conf.Output = Configuration.OutputType.Lib;
+            // spdlog (through fmt) asks the code using it to compile with /utf-8. Sharpmake
+            // doesn't forward compiler options to dependents, so it is added here.
+            conf.AdditionalCompilerOptions.Add("/utf-8");
+        }
     }
 }
